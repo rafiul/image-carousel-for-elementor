@@ -1,0 +1,77 @@
+.tb-carousel {
+	position: relative;
+}
+
+
+.tb-carousel .swiper-slide img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.tb-carousel .swiper {
+	width: 100%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.tb-carousel .swiper-slide {
+	background-size: cover;
+	background-position: center;
+}
+
+
+.tb-carousel .swiper-slide img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: center;
+}
+.tb-carousel .swiper-slide img{
+border-radius: 30px;
+}
+
+.tb-carousel {
+    position: relative;
+}
+ .tb-carousel .swiper-button-next, .tb-carousel .swiper-button-prev{
+	position:initial;
+}
+
+.tb-carousel .swiper-button-next {
+    position: absolute;
+    left: 50%;
+}
+.tb-carousel .swiper-button-prev {
+    position: absolute;
+    left: 46%;
+}
+.tb-carousel .swiper-button-next, .tb-carousel .swiper-button-prev {
+    top: unset;
+    bottom: -60px;
+}
+.tb-carousel .swiper-button-next.tb-next:after, 
+.tb-carousel .swiper-button-prev.tb-prev:after{
+	content: "" !important;
+}
+.tb-carousel .swiper-button-prev.tb-prev,
+.tb-carousel .swiper-button-next.tb-next {
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    color: #fff;
+    padding:10px
+}
+@media(max-width:480px){
+	.tb-carousel .swiper-button-prev {
+		position: absolute;
+		left: 40%;
+	}
+	.tb-carousel .swiper-button-next {
+		position: absolute;
+		left: 53%;
+	}
+}
