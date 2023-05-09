@@ -1,6 +1,8 @@
 <?php
 
 namespace TbCarousel\Widgets;
+use Elementor\Core\Kits\Documents\Tabs\Global_Colors;
+use Elementor\Group_Control_Text_Shadow;
 
 // Security Note: Blocks direct access to the plugin PHP files.
 defined( 'ABSPATH' ) || die();
@@ -157,6 +159,20 @@ class SliderControls extends \Elementor\Widget_Base {
 				
 			]
 		);
+		$this->add_control(
+			'caption_type',
+			[
+				'label' => esc_html__( 'Caption', 'tb-carousel' ),
+				'type' => \Elementor\Controls_Manager::SELECT,
+				'default' => '',
+				'options' => [
+					'' => esc_html__( 'None', 'tb-carousel' ),
+					'title' => esc_html__( 'Title', 'tb-carousel' ),
+					'caption' => esc_html__( 'Caption', 'tb-carousel' ),
+					'description' => esc_html__( 'Description', 'tb-carousel' ),
+				],
+			]
+		);
 		$this->end_controls_section();
 		/**
 		 * Image Section End
@@ -233,9 +249,90 @@ class SliderControls extends \Elementor\Widget_Base {
 				
 			]
 		);
-
+		
 
 		$this->end_controls_section();
+		$this->start_controls_section(
+			'section_caption',
+			[
+				'label' => esc_html__( 'Caption', 'tb-carousel' ),
+				'tab' => \Elementor\Controls_Manager::TAB_STYLE,
+				'condition' => [
+					'caption_type!' => '',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'caption_align',
+			[
+				'label' => esc_html__( 'Alignment', 'tb-carousel' ),
+				'type' => \Elementor\Controls_Manager::CHOOSE,
+				'options' => [
+					'left' => [
+						'title' => esc_html__( 'Left', 'tb-carousel' ),
+						'icon' => 'eicon-text-align-left',
+					],
+					'center' => [
+						'title' => esc_html__( 'Center', 'tb-carousel' ),
+						'icon' => 'eicon-text-align-center',
+					],
+					'right' => [
+						'title' => esc_html__( 'Right', 'tb-carousel' ),
+						'icon' => 'eicon-text-align-right',
+					],
+				],
+				'default' => 'center',
+				'selectors' => [
+					'{{WRAPPER}} .tb-image-carousel-caption' => 'text-align: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'caption_text_color',
+			[
+				'label' => esc_html__( 'Text Color', 'tb-carousel' ),
+				'type' => \Elementor\Controls_Manager::COLOR,
+				'default' => '',
+				'selectors' => [
+					'{{WRAPPER}} .tb-image-carousel-caption' => 'color: {{VALUE}};',
+				],
+			]
+		);
+		$this->add_control(
+			'caption_bg_color',
+			[
+				'label' => esc_html__( 'Background Color', 'tb-carousel' ),
+				'type' => \Elementor\Controls_Manager::COLOR,
+				'default' => '',
+				'selectors' => [
+					'{{WRAPPER}} .tb-image-carousel-caption' => 'background-color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
+			[
+				'name' => 'caption_typography',
+				'global' => [
+					'default' => Global_Colors::COLOR_ACCENT,
+				],
+				'selector' => '{{WRAPPER}} .tb-image-carousel-caption',
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Text_Shadow::get_type(),
+			[
+				'name' => 'caption_shadow',
+				'selector' => '{{WRAPPER}} .tb-image-carousel-caption',
+			]
+		);
+
+		$this->end_controls_section();
+		
 		/**
 		 * Style Section End
 		 */
@@ -366,27 +463,57 @@ class SliderControls extends \Elementor\Widget_Base {
 	// Frontend output
 	protected function render() {
 		$settings = $this->get_settings_for_display();
+		
 		$id= $this->get_id();
 		?>
-<div class="tb-carousel">
-	<div class="swiper featured-swiper">
-		<div class="swiper-wrapper">
-		<?php
-		foreach ( $settings['gallery'] as $image ) { ?>
-		<div class="swiper-slide"><?php echo wp_get_attachment_image($image['id'], $settings['thumbnail_size']);?></div>
-		<?php }?>
+		<div class="tb-carousel">
+			<div class="swiper featured-swiper">
+				<div class="swiper-wrapper">
+				<?php
+				foreach ( $settings['gallery'] as $index => $attachment ) { 
+					$image_caption = $this->get_image_caption( $attachment );
+					?>
+				<div class="swiper-slide">
+					<?php echo wp_get_attachment_image($attachment['id'], $settings['thumbnail_size']);?>
+					<?php if ( ! empty( $image_caption ) ) {
+					echo '<div class="tb-image-carousel-caption">' . wp_kses_post( $image_caption ) . '</div>';
+				}?>
+				</div>
+				
+				<?php }?>
+				</div>
+				
+			</div>
+			<div class="swiper-button-next tb-next">
+			<?php \Elementor\Icons_Manager::render_icon( $settings['navigation_next_icon'], [ 'aria-hidden' => 'true' ] ); ?>
+			</div>
+			<div class="swiper-button-prev tb-prev">
+			<?php \Elementor\Icons_Manager::render_icon( $settings['navigation_previous_icon'], [ 'aria-hidden' => 'true' ] ); ?>
+			</div>
 		</div>
-		
-	</div>
-	<div class="swiper-button-next tb-next">
-	<?php \Elementor\Icons_Manager::render_icon( $settings['navigation_next_icon'], [ 'aria-hidden' => 'true' ] ); ?>
-	</div>
-	<div class="swiper-button-prev tb-prev">
-	<?php \Elementor\Icons_Manager::render_icon( $settings['navigation_previous_icon'], [ 'aria-hidden' => 'true' ] ); ?>
-	</div>
-</div>
 			
 <?php }
 
 
+private function get_image_caption( $attachment ) {
+	$caption_type = $this->get_settings_for_display( 'caption_type' );
+
+	if ( empty( $caption_type ) ) {
+		return '';
+	}
+
+	$attachment_post = get_post( $attachment['id'] );
+
+	if ( 'caption' === $caption_type ) {
+		return $attachment_post->post_excerpt;
+	}
+
+	if ( 'title' === $caption_type ) {
+		return $attachment_post->post_title;
+	}
+
+	return $attachment_post->post_content;
 }
+
+}
+

@@ -19,19 +19,19 @@
 .tb-carousel .swiper-slide {
 	background-size: cover;
 	background-position: center;
+	border-radius: 30px;
+	overflow: hidden;
 }
 
 
 .tb-carousel .swiper-slide img {
 	display: block;
 	width: 100%;
-	height: 100%;
+	/* height: 100%; */
 	object-fit: cover;
 	object-position: center;
 }
-.tb-carousel .swiper-slide img{
-border-radius: 30px;
-}
+.tb-carousel .swiper-slide img{/* border-radius: 30px; */}
 
 .tb-carousel {
     position: relative;
@@ -64,6 +64,16 @@ border-radius: 30px;
     height: 40px;
     color: #fff;
     padding:10px
+}
+.tb-image-carousel-caption {
+    position: absolute;
+    bottom: 0;
+    background: #16243d;
+    width: 100%;
+    color: #fff;
+    text-align: center;
+    font-size: 22px;
+    padding: 10px;
 }
 @media(max-width:480px){
 	.tb-carousel .swiper-button-prev {

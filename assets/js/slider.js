@@ -35,16 +35,10 @@ $window.on( 'elementor/frontend/init', function() {
                 speed: $settings.speed,
 				centeredSlides: $settings.centeredSlides=='yes' ? true : false,
                 loop:$settings.loop=='yes' ? true : false,
-                disableOnInteraction: false,
+                //disableOnInteraction: false,
 
                 autoplay: {
                     delay: $settings.delay,
-                },
-                breakpoints: {
-                    640: {
-                      slidesPerView: 1,
-                      spaceBetween: 20,
-                    }
                 },
 
                 navigation: {

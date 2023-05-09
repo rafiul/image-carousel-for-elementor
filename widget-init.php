@@ -1,7 +1,7 @@
 <?php
 /**
- * Plugin Name: ThemesByte Elementor Carousel
- * Description: This plugin uses Elementors slider script and adds the posibility for a slider with thumbnails
+ * Plugin Name: Image Carousel for Elementor
+ * Description: This plugin uses Elementors slider script and adds the posibility for a slider. 
  * Plugin URI:  https://github.com/rafiul
  * Version:     1.0.0
  * Author:      B M Rafiul Alam
