@@ -27,11 +27,9 @@
 .tb-carousel .swiper-slide img {
 	display: block;
 	width: 100%;
-	/* height: 100%; */
 	object-fit: cover;
 	object-position: center;
 }
-.tb-carousel .swiper-slide img{/* border-radius: 30px; */}
 
 .tb-carousel {
     position: relative;
@@ -84,4 +82,57 @@
 		position: absolute;
 		left: 53%;
 	}
+}
+
+
+/*Testimonial*/
+.tb-testimonial {
+    padding: 10px;
+}
+
+.tb-testimonial-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #16243d;
+    margin-bottom: 0.9rem;
+    line-height: 27px;
+}
+.tb-testimonial .swiper-slide {
+    background-color: #FFFFFF;
+    border-radius: 15px;
+	border: 1px solid #d6d5d5;
+    padding: 30px 30px 30px 30px;
+}
+.tb-testimonial .swiper-button-next.tb-next:after, .tb-carousel .swiper-button-prev.tb-prev:after {
+    content: "" !important;
+}
+.tb-testimonial .swiper-slide.swiper-slide-active {
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+}
+.tb-testimonial .swiper-wrapper {
+    padding: 20px 0;
+}
+.tb-testimonial-content{
+    color:#777777;
+    font-size: 18px;
+}
+.tb-testimonial .tb-testimonial-image img{
+    width: auto;
+}
+.tb-testimonial-image{
+    margin-bottom: 25px;
+}
+.tb-testimonial-name {
+    color: #16243d;
+    font-family: "Roboto", Sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    font-style: normal;
+}
+.tb-testimonial-position {
+    color:#16243d;
+    font-family: "Roboto", Sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+    font-style: normal;
 }

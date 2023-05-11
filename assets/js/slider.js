@@ -1,4 +1,3 @@
-
  
 
 ;(function ($, w) {
@@ -29,21 +28,40 @@ $window.on( 'elementor/frontend/init', function() {
              * get data on editor mode
              */
             var $settings = this.getElementSettings();
-            var swiper = new Swiper('.swiper.featured-swiper', {
+            var swiper = new Swiper('#swiper-'+ $id, {
                 slidesPerView: $settings.slidesPerView,
-                spaceBetween: $settings.spaceBetween,
+                //spaceBetween: $settings.spaceBetween,
                 speed: $settings.speed,
 				centeredSlides: $settings.centeredSlides=='yes' ? true : false,
                 loop:$settings.loop=='yes' ? true : false,
-                //disableOnInteraction: false,
+                //disableOnInteraction: true,
 
                 autoplay: {
+                    enabled: true,
                     delay: $settings.delay,
                 },
+             breakpoints: {
+					960: {
+					  slidesPerView: 2,
+					  spaceBetween: 30
+					},
+					720: {
+					  slidesPerView: 2,
+					  spaceBetween: 15
+					},
+					540: {
+					  slidesPerView: 1,
+					  spaceBetween: 0
+					},
+					320: {
+					  slidesPerView: 1,
+					  spaceBetween: 0
+					},
+				  },
 
                 navigation: {
-                    nextEl: '.swiper-button-next',
-                    prevEl: '.swiper-button-prev',
+                    nextEl: '.next-'+$id,
+                    prevEl: '.prev-'+$id,
                 },
               });
         }

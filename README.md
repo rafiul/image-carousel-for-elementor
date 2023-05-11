@@ -1,1 +1,0 @@
-# image-carousel-for-elementor

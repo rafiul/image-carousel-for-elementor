@@ -1,8 +1,23 @@
 <?php
 
 namespace TbCarousel\Widgets;
+
 use Elementor\Core\Kits\Documents\Tabs\Global_Colors;
 use Elementor\Group_Control_Text_Shadow;
+use Elementor\Widget_Base;
+use Elementor\Controls_Manager;
+use Elementor\Core\Schemes\Color;
+use Elementor\Group_Control_Typography;
+use Elementor\Core\Schemes\Typography;
+use Elementor\Core\Kits\Documents\Tabs\Global_Typography;
+use Elementor\Group_Control_Border;
+use Elementor\Group_Control_Box_Shadow;
+use Elementor\Group_Control_Background;
+use Elementor\Group_Control_Css_Filter;
+use Elementor\Plugin;
+use Elementor\Utils;
+use Elementor\Repeater;
+use Elementor\Modules\DynamicTags\Module as TagsModule;
 
 // Security Note: Blocks direct access to the plugin PHP files.
 defined( 'ABSPATH' ) || die();
@@ -20,7 +35,7 @@ class SliderControls extends \Elementor\Widget_Base {
 
 	// Widget title
 	public function get_title() {
-		return __( 'Image Carousel', 'tb-carousel' );
+		return __( 'Image Carousel (R)', 'tb-carousel' );
 	}
 
 	// Widget icon
@@ -50,17 +65,41 @@ class SliderControls extends \Elementor\Widget_Base {
 		 * Image Section Start
 		 */
 		$this->start_controls_section(
-			'image_section',
+			'type_section',
 			[
-				'label' => esc_html__( 'Images', 'tb-carousel' ),
+				'label' => esc_html__( 'Select Type', 'tb-carousel' ),
 				'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
 			]
 		);
+		$this->add_control(
+			'carousel_type',
+			[
+				'label' => esc_html__( 'Carousel Type', 'tb-carousel' ),
+				'type' => \Elementor\Controls_Manager::SELECT,
+				'default' => 'image',
+				'options' => [
+					'image' => esc_html__( 'Image', 'tb-carousel' ),
+					'testimonial' => esc_html__( 'Testimonial', 'tb-carousel' ),
+				],
+			]
+		);
 
+		$this->end_controls_section();
+		
+		$this->start_controls_section(
+			'image_section',
+			[
+				'label' => esc_html__( 'Image Content', 'tb-carousel' ),
+				'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
+				'condition' => [
+					'carousel_type' => 'image',
+				],
+			]
+		);
 		$this->add_control(
 			'gallery',
 			[
-				'label' => esc_html__( 'Add Images', 'tb-carousel' ),
+				'label' => esc_html__( 'Image', 'tb-carousel' ),
 				'type' => \Elementor\Controls_Manager::GALLERY,
 				'default' => [],
 				'description' => esc_html__( 'Adding more than 1 image, will active the slider functionality', 'tb-carousel' ),
@@ -70,6 +109,7 @@ class SliderControls extends \Elementor\Widget_Base {
 			]
 		);
 
+
 		$this->add_group_control(
 			\Elementor\Group_Control_Image_Size::get_type(),
 			[
@@ -77,88 +117,10 @@ class SliderControls extends \Elementor\Widget_Base {
 				'exclude' => [],
 				'include' => [],
 				'default' => 'full',
-			]
-		);
-		$this->add_control(
-			'navigation_previous_icon',
-			[
-				'label' => esc_html__( 'Previous Arrow Icon', 'tb-carousel' ),
-				'type' => \Elementor\Controls_Manager::ICONS,
-				'fa4compatibility' => 'icon',
-				'skin' => 'inline',
-				'label_block' => false,
-				'skin_settings' => [
-					'inline' => [
-						'none' => [
-							'label' => 'Default',
-							'icon' => 'eicon-chevron-left',
-						],
-						'icon' => [
-							'icon' => 'eicon-star',
-						],
-					],
-				],
-				'recommended' => [
-					'fa-regular' => [
-						'arrow-alt-circle-left',
-						'caret-square-left',
-					],
-					'fa-solid' => [
-						'angle-double-left',
-						'angle-left',
-						'arrow-alt-circle-left',
-						'arrow-circle-left',
-						'arrow-left',
-						'caret-left',
-						'caret-square-left',
-						'chevron-circle-left',
-						'chevron-left',
-						'long-arrow-alt-left',
-					],
-				],
-			]
+			],
+			
 		);
 
-		$this->add_control(
-			'navigation_next_icon',
-			[
-				'label' => esc_html__( 'Next Arrow Icon', 'tb-carousel' ),
-				'type' => \Elementor\Controls_Manager::ICONS,
-				'fa4compatibility' => 'icon',
-				'skin' => 'inline',
-				'label_block' => false,
-				'skin_settings' => [
-					'inline' => [
-						'none' => [
-							'label' => 'Default',
-							'icon' => 'eicon-chevron-right',
-						],
-						'icon' => [
-							'icon' => 'eicon-star',
-						],
-					],
-				],
-				'recommended' => [
-					'fa-regular' => [
-						'arrow-alt-circle-right',
-						'caret-square-right',
-					],
-					'fa-solid' => [
-						'angle-double-right',
-						'angle-right',
-						'arrow-alt-circle-right',
-						'arrow-circle-right',
-						'arrow-right',
-						'caret-right',
-						'caret-square-right',
-						'chevron-circle-right',
-						'chevron-right',
-						'long-arrow-alt-right',
-					],
-				],
-				
-			]
-		);
 		$this->add_control(
 			'caption_type',
 			[
@@ -173,6 +135,120 @@ class SliderControls extends \Elementor\Widget_Base {
 				],
 			]
 		);
+		$this->end_controls_section();
+
+		/** Testimonial Content */
+		$this->start_controls_section(
+			'repeater_section',
+			[
+				'label' => esc_html__( 'Testimonial Content', 'tb-carousel' ),
+				'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
+				'condition' => [
+					'carousel_type!' => 'image',
+				],
+			]
+		);
+		
+	
+		$repeater = new \Elementor\Repeater();
+		$repeater->add_control(
+			'testimonial_image',
+			[
+				'label' => esc_html__( 'Choose Image', 'tb-carousel' ),
+				'type' =>\Elementor\Controls_Manager::MEDIA,
+				'default' => [
+					'url' => Utils::get_placeholder_image_src(),
+				],
+			]
+		);
+
+		$repeater->add_group_control(
+			\Elementor\Group_Control_Image_Size::get_type(),
+			[
+				'name' => 'thumbnail',
+				'exclude' => [],
+				'include' => [],
+				'default' => 'full',
+				'condition' => [
+					'carousel_type' => 'image',
+				],
+			],
+			
+		);
+
+		$repeater->add_control(
+			'testimonial_title',
+			[
+				'label' => esc_html__( 'Title', 'tb-carousel' ),
+				'type' => \Elementor\Controls_Manager::TEXTAREA,
+				'default' => 'Lorem Ipsum Title',
+			]
+		);
+		$repeater->add_control(
+			'testimonial_content',
+			[
+				'label' => esc_html__( 'Content', 'tb-carousel' ),
+				'type' => \Elementor\Controls_Manager::WYSIWYG,
+				'rows' => '10',
+				'default' => esc_html__( 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.', 'tb-carousel' ),
+			]
+		);
+
+		$repeater->add_control(
+			'testimonial_name',
+			[
+				'label' => esc_html__( 'Name', 'tb-carousel' ),
+				'type' => \Elementor\Controls_Manager::TEXT,
+				'default' => 'John Doe',
+			]
+		);
+
+		$repeater->add_control(
+			'testimonial_job',
+			[
+				'label' => esc_html__( 'Title', 'tb-carousel' ),
+				'type' => \Elementor\Controls_Manager::TEXT,
+				'default' => 'Designer',
+			]
+		);
+
+		$repeater->add_control(
+			'link',
+			[
+				'label' => esc_html__( 'Link', 'tb-carousel' ),
+				'type' => \Elementor\Controls_Manager::URL,
+				'dynamic' => [
+					'active' => true,
+				],
+				'placeholder' => esc_html__( 'https://your-link.com', 'tb-carousel' ),
+			]
+		);
+		$this->add_control(
+			'testimonial_list',
+			[
+				'label' => esc_html__( 'Testimonial List', 'tb-carousel' ),
+				'type' => \Elementor\Controls_Manager::REPEATER,
+				'fields' => $repeater->get_controls(),
+				'default' => [
+					[
+						'testimonial_title' => esc_html__( 'Title #1', 'tb-carousel' ),
+						'testimonial_content' => esc_html__( 'Item content. Click the edit button to change this text.', 'tb-carousel' ),
+					],
+					[
+						'testimonial_title' => esc_html__( 'Title #2', 'tb-carousel' ),
+						'testimonial_content' => esc_html__( 'Item content. Click the edit button to change this text.', 'tb-carousel' ),
+					],
+					[
+						'testimonial_title' => esc_html__( 'Title #3', 'tb-carousel' ),
+						'testimonial_content' => esc_html__( 'Item content. Click the edit button to change this text.', 'tb-carousel' ),
+					],
+				],
+				'title_field' => '{{{ testimonial_title }}}',
+			]
+		);
+
+		/** End Repeater */
+		
 		$this->end_controls_section();
 		/**
 		 * Image Section End
@@ -201,23 +277,19 @@ class SliderControls extends \Elementor\Widget_Base {
 			]
 		);
 	
-
-		
-
 		$this->add_control(
-			'arrows_size',
+			'image_size',
 			[
-				'label' => esc_html__( 'Size', 'tb-carousel' ),
+				'label' => esc_html__( 'Image Height', 'tb-carousel' ),
 				'type' => \Elementor\Controls_Manager::SLIDER,
 				'range' => [
 					'px' => [
 						'min' => 20,
-						'max' => 60,
+						'max' => 500,
 					],
 				],
 				'selectors' => [
-					'{{WRAPPER}} .swiper-button-prev.tb-prev, 
-					{{WRAPPER}} .swiper-button-next.tb-next' => 'font-size: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .swiper-slide img' => 'height: {{SIZE}}{{UNIT}};',
 				],
 				
 			]
@@ -226,7 +298,7 @@ class SliderControls extends \Elementor\Widget_Base {
 		$this->add_control(
 			'arrows_color',
 			[
-				'label' => esc_html__( 'Color', 'tb-carousel' ),
+				'label' => esc_html__( 'Nav Color', 'tb-carousel' ),
 				'type' => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .swiper-button-next.tb-next, 
@@ -240,7 +312,7 @@ class SliderControls extends \Elementor\Widget_Base {
 		$this->add_control(
 			'arrows_bg_color',
 			[
-				'label' => esc_html__( 'Background Color', 'tb-carousel' ),
+				'label' => esc_html__( 'Nav Background Color', 'tb-carousel' ),
 				'type' => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .swiper-button-next.tb-next, 
@@ -258,7 +330,7 @@ class SliderControls extends \Elementor\Widget_Base {
 				'label' => esc_html__( 'Caption', 'tb-carousel' ),
 				'tab' => \Elementor\Controls_Manager::TAB_STYLE,
 				'condition' => [
-					'caption_type!' => '',
+					'carousel_type' => 'image',
 				],
 			]
 		);
@@ -347,6 +419,86 @@ class SliderControls extends \Elementor\Widget_Base {
                 'label'     => esc_html__( 'Slider Settings . ', 'tb-carousel' ),
             ]
         );
+		$this->add_control(
+			'navigation_previous_icon',
+			[
+				'label' => esc_html__( 'Previous Arrow Icon', 'tb-carousel' ),
+				'type' => \Elementor\Controls_Manager::ICONS,
+				'fa4compatibility' => 'icon',
+				'skin' => 'inline',
+				'label_block' => false,
+				'skin_settings' => [
+					'inline' => [
+						'none' => [
+							'label' => 'Default',
+							'icon' => 'eicon-chevron-left',
+						],
+						'icon' => [
+							'icon' => 'eicon-star',
+						],
+					],
+				],
+				'recommended' => [
+					'fa-regular' => [
+						'arrow-alt-circle-left',
+						'caret-square-left',
+					],
+					'fa-solid' => [
+						'angle-double-left',
+						'angle-left',
+						'arrow-alt-circle-left',
+						'arrow-circle-left',
+						'arrow-left',
+						'caret-left',
+						'caret-square-left',
+						'chevron-circle-left',
+						'chevron-left',
+						'long-arrow-alt-left',
+					],
+				],
+			]
+		);
+
+		$this->add_control(
+			'navigation_next_icon',
+			[
+				'label' => esc_html__( 'Next Arrow Icon', 'tb-carousel' ),
+				'type' => \Elementor\Controls_Manager::ICONS,
+				'fa4compatibility' => 'icon',
+				'skin' => 'inline',
+				'label_block' => false,
+				'skin_settings' => [
+					'inline' => [
+						'none' => [
+							'label' => 'Default',
+							'icon' => 'eicon-chevron-right',
+						],
+						'icon' => [
+							'icon' => 'eicon-star',
+						],
+					],
+				],
+				'recommended' => [
+					'fa-regular' => [
+						'arrow-alt-circle-right',
+						'caret-square-right',
+					],
+					'fa-solid' => [
+						'angle-double-right',
+						'angle-right',
+						'arrow-alt-circle-right',
+						'arrow-circle-right',
+						'arrow-right',
+						'caret-right',
+						'caret-square-right',
+						'chevron-circle-right',
+						'chevron-right',
+						'long-arrow-alt-right',
+					],
+				],
+				
+			]
+		);
 
 		$this->add_control(
 			'loop',
@@ -424,7 +576,7 @@ class SliderControls extends \Elementor\Widget_Base {
 				'min' => 0,
 				'max' => 100,
 				'step' => 2,
-				'default' => 50,
+				'default' => 30,
 				'frontend_available' => true,
                 'condition' => [
                     'slidesPerView!' => 'default',
@@ -466,13 +618,15 @@ class SliderControls extends \Elementor\Widget_Base {
 		
 		$id= $this->get_id();
 		?>
+
+		<?php if($settings['carousel_type']=='image'){?>
 		<div class="tb-carousel">
-			<div class="swiper featured-swiper">
+			<div class="swiper featured-swiper-<?php echo $id;?>" id="swiper-<?php echo $id;?>">
 				<div class="swiper-wrapper">
 				<?php
 				foreach ( $settings['gallery'] as $index => $attachment ) { 
 					$image_caption = $this->get_image_caption( $attachment );
-					?>
+				?>
 				<div class="swiper-slide">
 					<?php echo wp_get_attachment_image($attachment['id'], $settings['thumbnail_size']);?>
 					<?php if ( ! empty( $image_caption ) ) {
@@ -484,13 +638,63 @@ class SliderControls extends \Elementor\Widget_Base {
 				</div>
 				
 			</div>
-			<div class="swiper-button-next tb-next">
-			<?php \Elementor\Icons_Manager::render_icon( $settings['navigation_next_icon'], [ 'aria-hidden' => 'true' ] ); ?>
-			</div>
-			<div class="swiper-button-prev tb-prev">
-			<?php \Elementor\Icons_Manager::render_icon( $settings['navigation_previous_icon'], [ 'aria-hidden' => 'true' ] ); ?>
-			</div>
+			<?php
+			if($settings['navigation']){?>
+				<div class="swiper-button-next next-<?php echo $id;?> tb-next">
+				<?php \Elementor\Icons_Manager::render_icon( $settings['navigation_next_icon'], [ 'aria-hidden' => 'true' ] ); ?>
+				</div>
+				<div class="swiper-button-prev prev-<?php echo $id;?> tb-prev">
+				<?php \Elementor\Icons_Manager::render_icon( $settings['navigation_previous_icon'], [ 'aria-hidden' => 'true' ] ); ?>
+				</div>
+			<?php }?>
 		</div>
+		<?php }?>
+
+		<!--Testimonial-->
+		<?php if($settings['carousel_type']=='testimonial'){?>
+		<div class="tb-carousel tb-testimonial">
+			<div class="swiper featured-swiper-<?php echo $id;?>" id="swiper-<?php echo $id;?>">
+				<div class="swiper-wrapper">
+
+				<?php
+				$count=0;
+				//print_r($settings['testimonial_list']);
+				 foreach($settings['testimonial_list'] as $testimonials){
+				?>
+
+				<div class="swiper-slide">
+					<div class="tb-testimonial-image">
+					<?php echo wp_get_attachment_image($testimonials['testimonial_image']['id'], $settings['thumbnail_size']);?>
+					</div>
+					<h3 class="tb-testimonial-title">
+						<?php echo $testimonials['testimonial_title'];?>
+					</h3>
+					<div class="tb-testimonial-content">
+						<?php echo $testimonials['testimonial_content'];?>
+					</div>
+					<div class="tb-testimonial-name">
+						<?php echo $testimonials['testimonial_name'];?>
+					</div>
+					<div class="tb-testimonial-position">
+						<?php echo $testimonials['testimonial_job'];?>
+					</div>
+				</div>
+				<?php }?>
+			</div>
+			
+		</div>
+			<?php
+				if($settings['navigation']){
+			?>
+				<div class="swiper-button-next tb-next next-<?php echo $id;?>">
+				<?php \Elementor\Icons_Manager::render_icon( $settings['navigation_next_icon'], [ 'aria-hidden' => 'true' ] ); ?>
+				</div>
+				<div class="swiper-button-prev tb-prev prev-<?php echo $id;?>">
+				<?php \Elementor\Icons_Manager::render_icon( $settings['navigation_previous_icon'], [ 'aria-hidden' => 'true' ] ); ?>
+				</div>
+			<?php }?>
+	</div>
+	<?php }?>
 			
 <?php }
 

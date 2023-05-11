@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Image Carousel for Elementor
+ * Plugin Name: Multi Carousel for Elementor
  * Description: This plugin uses Elementors slider script and adds the posibility for a slider. 
  * Plugin URI:  https://github.com/rafiul
  * Version:     1.0.0
