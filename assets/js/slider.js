@@ -85,23 +85,3 @@ $window.on( 'elementor/frontend/init', function() {
     );
 });
 } (jQuery, window));
-/* 
-jQuery(document).ready(function ($) {
-    
-    $(window).on('elementor/frontend/init', function () {
-        // wait for elementor pro to load
-        elementorFrontend.on('components:init', function () {
-
-            const imageCarousel = jQuery('.swiper'),
-            swiperInstance = imageCarousel.data('swiper');
-
-            swiperInstance.centeredSlides = true;
-            swiperInstance.slidesPerView = 2;
-            swiperInstance.loop = true;
-
-            swiperInstance.update();
-            
-        });
-    });
-    
-}); */
